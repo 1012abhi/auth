@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { body, param } from 'express-validator'
-import {registerUser, loginUser, getUserProfile, logoutUser, forgotPassword, resetPassword, verifyEmail, updateUserProfile} from '../controller/user.controller.js'
+import {registerUser, loginUser, getUserProfile, logoutUser, forgotPassword, resetPassword, verifyEmail, updateUserProfile, updatePassword} from '../controller/user.controller.js'
 import { authUser } from "../middleware/auth.middleware.js";
 import passport from "../config/passport.js";
 import { userModel } from "../models/user.model.js";
@@ -28,6 +28,12 @@ router.put('/updateuser', authUser, updateUserProfile)
 router.get('/logout', authUser, logoutUser)
 router.post('/forgotpassword', forgotPassword);
 router.post('/resetpassword', resetPassword);
+router.put('/updatepassword', authUser, [
+    body('oldPassword').isLength({min: 6}).withMessage('Old password must be at least 6 characters long'),
+    body('newPassword').isLength({min: 6}).withMessage('New password must be at least 6 characters long'),
+], 
+  updatePassword
+)
 
 // Google OAuth Login
 router.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));

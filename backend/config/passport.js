@@ -13,20 +13,67 @@ passport.use(
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
-        // Check if user already exists
-        let user = await userModel.findOne({ googleId: profile.id });
-        console.log("USER googlestrategy 18 :", user);
-        // console.log("PROFILE ID:", profile.id);
+        // Check by googleId OR email
+        let user = await userModel.findOne({
+          $or: [
+            { googleId: profile.id },
+            { email: profile.emails[0].value }
+          ]
+        });
 
-        
         if (!user) {
-          // Create a new user if not found
           user = await userModel.create({
             googleId: profile.id,
             email: profile.emails[0].value,
             name: profile.displayName,
-            isVerified: true, // Mark as verified since it's OAuth
+            isVerified: true,
           });
+        } else {
+          // Optionally update googleId if missing
+          if (!user.googleId) {
+            user.googleId = profile.id;
+            await user.save();
+          }
+        }
+
+        return done(null, user);
+      } catch (error) {
+        return done(error, null);
+      }
+    }
+  )
+);
+
+passport.use(
+  new GoogleStrategy(
+    {
+      clientID: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      callbackURL: process.env.GOOGLE_CALLBACK_URL,
+    },
+    async (accessToken, refreshToken, profile, done) => {
+      try {
+        // Check by googleId OR email
+        let user = await userModel.findOne({
+          $or: [
+            { googleId: profile.id },
+            { email: profile.emails[0].value }
+          ]
+        });
+
+        if (!user) {
+          user = await userModel.create({
+            googleId: profile.id,
+            email: profile.emails[0].value,
+            name: profile.displayName,
+            isVerified: true,
+          });
+        } else {
+          // Optionally update googleId if missing
+          if (!user.googleId) {
+            user.googleId = profile.id;
+            await user.save();
+          }
         }
 
         return done(null, user);

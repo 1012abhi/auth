@@ -116,9 +116,9 @@ const GeneralTab = () => {
       alert("Profile updated successfully!");
       console.log("Profile updated successfully:", response.data);
       
-      setFullName(response.data.name || "");
-      setEmail(response.data.email || "");
-      setPhone(response.data.phone || "");
+      setFullName(response.data.name);
+      setEmail(response.data.email);
+      setPhone(response.data.phone);
       // Optionally, you can redirect or update the UI based on the response
       // For example, you can navigate to a different page or show a success message
       // navigate("/profile"); // Redirect to profile page
@@ -136,11 +136,9 @@ const GeneralTab = () => {
   return (
     <div 
     className="max-w-xl mx-auto mt-10 space-y-6">
-      <form action=""
+      <form 
         onSubmit={updateUserProfile}
       >
-
-
       {/* Full Name */}
       <InputField
         label="Full Name"
@@ -197,10 +195,36 @@ const SecurityTab = () => {
     const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] = useState(false);
     const [isCurrentPasswordVisible, setIsCurrentPasswordVisible] = useState(false);
 
+    const updatePassword = async (e) => {
+        e.preventDefault();
+        try {
+          const response = await axios.put(
+            `${import.meta.env.VITE_BASE_URL}/user/updatepassword`,
+            { oldPassword: currentPassword, newPassword },
+            {
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`, // Pass token for authentication
+              },
+            }
+          );
+          const data = response.data;
+          console.log("Response data:", data);
+          alert("Password updated successfully!");
+          setCurrentPassword(currentPassword);
+          setNewPassword(newPassword)
+          console.log("Password updated successfully:", response.data);
+        } catch (error) {
+          console.error("Error updating password:", error);
+          alert("Failed to update password. Please try again.");
+        }
+      }
   return (
     <div>
         <div className="max-w-xl mx-auto mt-10 space-y-6">
           <div className="max-w-xl mx-auto space-y-6">
+            <form 
+            onSubmit={updatePassword}
+            >
               {/* Current Password */}
               <InputField 
                   label="Current Password"
@@ -230,6 +254,7 @@ const SecurityTab = () => {
                   Change Password
               </button>
               </div>
+            </form>
           </div>
         </div>
     </div>

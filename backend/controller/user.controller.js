@@ -203,6 +203,38 @@ const resetPassword = async (req, res) => {
     }
 };
 
+const updatePassword = async (req, res) => {
+    const { oldPassword, newPassword } = req.body;
+
+    try {
+        // Find the user by ID
+        const user = await userModel.findById(req.user._id).select('+password');
+        console.log('user updatepass 212', user);
+        
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Check if the old password matches
+        const isMatch = await user.comparePassword(oldPassword);
+        if (!isMatch) {
+            return res.status(401).json({ message: 'Old password is incorrect' });
+        }
+        if (!oldPassword) {
+            user.password = await userModel.hashPassword(newPassword);
+            await user.save();
+            return res.status(400).json({ message: 'Password updated successfully' });
+        }
+
+        // Update the password
+        user.password = await userModel.hashPassword(newPassword);
+        await user.save();
+        res.status(200).json({ message: 'Password updated successfully', user });
+    } catch (error) {
+        console.error('Update Password Error:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+}
 
 const updateUserProfile = async (req, res) => {
     try {
@@ -238,4 +270,6 @@ const updateUserProfile = async (req, res) => {
 //     res.status(200).json({ message: 'Logged out' });
 // }
 
-export {registerUser, loginUser, getUserProfile, logoutUser, forgotPassword, resetPassword, verifyEmail, updateUserProfile};
+export {registerUser, loginUser, getUserProfile, logoutUser, 
+forgotPassword, resetPassword, verifyEmail, updateUserProfile,
+updatePassword};
