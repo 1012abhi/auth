@@ -33,12 +33,34 @@ const Login = () => {
       console.error('Login error:', error.response.data);
     }); 
 
-
     // Handle form submission (e.g., authentication logic)
     console.log('Email:', email);
     console.log('Password:', password);
     console.log('Remember Me:', rememberMe);
   };
+
+  const handleGoogleLogin = () => {
+    window.location.href = `${import.meta.env.VITE_BASE_URL}/user/auth/google`;
+  }
+  
+  // const handleGoogleLogin = () => {
+  //   // Handle Google login logic here (e.g., redirect to Google OAuth)
+  //   axios.get(`http://localhost:5173/api/user/auth/google`)
+  //   .then((response) => {
+  //     // Handle successful Google login (e.g., store token, redirect user)
+  //     console.log('Google login successful:', response.data);
+  //     toast.success('Google login successful!');
+  //     localStorage.setItem('token', response.data.token); // Store token in local storage
+  //     localStorage.setItem('user', JSON.stringify(response.data.user)); // Store user data in local storage
+  //     // Redirect to the dashboard or home page
+  //     navigate('/')
+  //   })
+  //   .catch((error) => {
+  //     // Handle Google login error (e.g., show error message)
+  //     toast.error(error.response?.data?.message || 'Google login failed!');
+  //     console.error('Google login error:', error.response.data);
+  //   });
+  // }
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100">
@@ -84,7 +106,6 @@ const Login = () => {
               <label htmlFor="remember" className="ml-2 text-sm text-gray-600">Remember me</label>
             </div>
             <Link to="/forgotpassword" className="text-sm text-indigo-500 hover:text-indigo-700">Forgot password?</Link>
-            {/* <a href="#" className="text-sm text-indigo-500 hover:text-indigo-700">Forgot password?</a> */}
           </div>
           
           <button
@@ -95,6 +116,25 @@ const Login = () => {
           </button>
         </form>
         
+        <div className="flex items-center my-4">
+          <div className="flex-grow h-px bg-gray-300"></div>
+          <span className="px-2 text-sm text-gray-500">or</span>
+          <div className="flex-grow h-px bg-gray-300"></div>
+        </div>
+        <a
+          onClick={() => {handleGoogleLogin()}}
+          // href={`${import.meta.env.VITE_BASE_URL}/user/auth/google`}
+          className="w-full flex items-center justify-center bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded-md transition duration-300 ease-in-out cursor-pointer"
+        >
+          <svg className="w-5 h-5 mr-2" viewBox="0 0 533.5 544.3">
+            <path fill="#4285F4" d="M533.5 278.4c0-17.7-1.6-34.7-4.6-51.1H272v96.8h146.9c-6.3 34.1-25 62.8-53.3 82.1l86.2 66.9c50.2-46.2 81.7-114.3 81.7-194.7z"/>
+            <path fill="#34A853" d="M272 544.3c72.6 0 133.6-24.1 178.1-65.2l-86.2-66.9c-24 16.1-54.7 25.6-91.9 25.6-70.6 0-130.5-47.7-151.9-111.6H30.1v69.9c44.5 88.1 136.5 148.2 241.9 148.2z"/>
+            <path fill="#FBBC05" d="M120.1 326.2c-10.4-30.8-10.4-63.6 0-94.4V161.9H30.1c-43.9 88.2-43.9 192.3 0 280.5l90-69.9z"/>
+            <path fill="#EA4335" d="M272 107.2c39.6-.6 77.7 14.4 106.5 41.7l79.6-79.6C406.4 24.6 341.2-1.1 272 0 166.6 0 74.6 60.1 30.1 148.2l90 69.9c21.4-63.9 81.3-111.6 151.9-111.6z"/>
+          </svg>
+          Continue with Google
+        </a>
+
         <p className="mt-6 text-center text-sm text-gray-600">
           Don't have an account? 
           <Link to="/signup" className="text-indigo-500 hover:text-indigo-700 ">Sign up</Link>

@@ -1,7 +1,7 @@
 import React from "react";
 import { Search } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-
+import { Link, useNavigate } from "react-router-dom";
+import { FiUser } from "react-icons/fi";
 
 const Navbar = () => {
     const navigate = useNavigate();
@@ -53,15 +53,21 @@ const Navbar = () => {
         </button>
       </div>
 
-      {/* Right: Buttons */}
-      <div className="flex gap-3">
-       
+      <div className="flex items-center justify-between w-full md:w-auto gap-4">
+        {/* Right: Buttons */}
+        <div className="">
+        
         <button 
         onClick={handleLogout}
         className="bg-blue-500 hover:bg-blue-600 text-white px-5 py-2 rounded-full font-normal cursor-pointer transition duration-300 ease-in-out">
           Logout
         </button>
-        
+      </div>
+      <div>
+        <Link to="/profile">
+          <FiUser className="cursor-pointer hover:text-primary" />
+        </Link>
+      </div>
       </div>
     </div>
   );

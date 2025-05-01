@@ -1,7 +1,9 @@
 import { Router } from "express";
 import { body, param } from 'express-validator'
-import {registerUser, loginUser, getUserProfile, logoutUser, forgotPassword, resetPassword, verifyEmail} from '../controller/user.controller.js'
+import {registerUser, loginUser, getUserProfile, logoutUser, forgotPassword, resetPassword, verifyEmail, updateUserProfile} from '../controller/user.controller.js'
 import { authUser } from "../middleware/auth.middleware.js";
+import passport from "../config/passport.js";
+import { userModel } from "../models/user.model.js";
 
 const router = Router()
 
@@ -22,8 +24,37 @@ router.post('/login', [
     loginUser
 )
 router.get('/profile', authUser, getUserProfile)
+router.put('/updateuser', authUser, updateUserProfile)
 router.get('/logout', authUser, logoutUser)
 router.post('/forgotpassword', forgotPassword);
 router.post('/resetpassword', resetPassword);
+
+// Google OAuth Login
+router.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+
+// Google OAuth Callback
+router.get(
+  '/auth/google/callback',
+  passport.authenticate('google', { failureRedirect: '/login' }),
+  (req, res) => {
+    // Successful authentication
+    const user = req.user;
+    console.log("USER callbase routes:", user);
+    const token = user.generateAuthToken();
+    // res.cookie('token', token)
+    const redirectURL = `${process.env.FRONTEND_URL}/oauthsuccess?token=${token}&user=${encodeURIComponent(JSON.stringify(user))}`;
+    res.redirect(redirectURL); // Redirect to profile or dashboard
+  }
+);
+
+// Logout
+router.get('/logout', (req, res) => {
+  req.logout((err) => {
+    if (err) {
+      return res.status(500).json({ message: 'Logout failed' });
+    }
+    res.redirect('/login');
+  });
+});
 
 export default router

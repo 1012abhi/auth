@@ -12,6 +12,8 @@ import ForgotPassword from './pages/ForgotPassword'
 import ResetPassword from './pages/ResetPassword'
 import VerifyEmail from './pages/VerifyEmail'
 import VerifyEmailPrompt from './pages/VerifyEmailPrompt'
+import OAuthSuccess from './pages/OAuthSuccess'
+import MyAccount from './components/MyAccount'
 
 function App() {
 
@@ -21,6 +23,11 @@ function App() {
           <Route path="/" element={
             <UserProtectedWrapper>
               <Home />
+            </UserProtectedWrapper>
+          } />
+          <Route path="/profile" element={
+            <UserProtectedWrapper>
+              <MyAccount />
             </UserProtectedWrapper>
           } />
           <Route path="/logout" element={
@@ -45,6 +52,7 @@ function App() {
           <Route path="/resetpassword/:token" element={<ResetPassword />} />
           <Route path="/verify-email" element={<VerifyEmailPrompt />} />
           <Route path="/verifyemail/:token" element={<VerifyEmail />} />
+          <Route path="/oauthsuccess" element={<OAuthSuccess />} />
         </Routes>
     </>
   )

@@ -204,6 +204,32 @@ const resetPassword = async (req, res) => {
 };
 
 
+const updateUserProfile = async (req, res) => {
+    try {
+        const { name, email, phone } = req.body;
+
+        // Find the user by ID
+        const user = await userModel.findById(req.user._id);
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Update user details
+        user.name = name || user.name;
+        user.email = email || user.email;
+        user.phone = phone || user.phone;
+
+        // Save the updated user
+        await user.save();
+ 
+        res.status(200).json({ message: 'Profile updated successfully', user });
+    } catch (error) {
+        console.error('Update Profile Error:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+};
+
 // const logoutUser = async (req, res, next) => {
 //     res.clearCookie('token');
 //     const token = req.cookies.token || req.headers.authorization.split(' ')[1];
@@ -212,4 +238,4 @@ const resetPassword = async (req, res) => {
 //     res.status(200).json({ message: 'Logged out' });
 // }
 
-export {registerUser, loginUser, getUserProfile, logoutUser, forgotPassword, resetPassword, verifyEmail};
+export {registerUser, loginUser, getUserProfile, logoutUser, forgotPassword, resetPassword, verifyEmail, updateUserProfile};

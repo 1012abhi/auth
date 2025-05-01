@@ -4,7 +4,6 @@ import jwt from "jsonwebtoken";
 
 
 const userSchema = new Schema({
-
     email: {
         type: String,
         required: true,
@@ -13,8 +12,23 @@ const userSchema = new Schema({
     },
     password: {
         type: String,
-        required: true,
+        // required: true,
         select: false,
+    },
+    googleId: {
+        type: String,
+        // unique: true,
+    },
+    name: {
+        type: String,
+    },
+    phone: {
+        type: String,
+        // unique: true,
+    },
+    profilePicture: {
+        type: String,
+        default: 'https://res.cloudinary.com/dqj0xgk8h/image/upload/v1697060982/DefaultProfilePicture.png'
     },
     isVerified: {
         type: Boolean,
