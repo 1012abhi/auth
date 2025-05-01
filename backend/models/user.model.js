@@ -4,6 +4,11 @@ import jwt from "jsonwebtoken";
 
 
 const userSchema = new Schema({
+    role: {
+        type: String,
+        enum: ['user', 'admin'], // Define roles
+        default: 'user', // Default role is 'user'
+    },
     email: {
         type: String,
         required: true,

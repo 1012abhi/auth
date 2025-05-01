@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-
+import ClipLoader from 'react-spinners/ClipLoader';
 const OAuthSuccess = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -23,7 +23,9 @@ const OAuthSuccess = () => {
     }
   }, [location, navigate]);
 
-  return <div>Logging you in...</div>;
+  return <div className='flex justify-center items-center h-screen'>
+    <ClipLoader />
+    </div>;
 };
 
 export default OAuthSuccess;

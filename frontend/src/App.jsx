@@ -14,6 +14,7 @@ import VerifyEmail from './pages/VerifyEmail'
 import VerifyEmailPrompt from './pages/VerifyEmailPrompt'
 import OAuthSuccess from './pages/OAuthSuccess'
 import MyAccount from './components/MyAccount'
+import AdminPanel from './pages/AdminPanel'
 
 function App() {
   return (
@@ -52,6 +53,8 @@ function App() {
           <Route path="/verify-email" element={<VerifyEmailPrompt />} />
           <Route path="/verifyemail/:token" element={<VerifyEmail />} />
           <Route path="/oauthsuccess" element={<OAuthSuccess />} />
+          
+          <Route path="/admin" element={<AdminPanel />} />
         </Routes>
     </>
   )

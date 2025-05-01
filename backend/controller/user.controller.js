@@ -12,7 +12,8 @@ const registerUser = async (req, res, next) => {
         return res.status(400).json({ errors: error.array() });
     }
 
-    const { email, password } = req.body
+    const { email, password, role } = req.body
+    console.log('role164', role);
     
     const isUserAlready = await userModel.findOne({ email });
     if (isUserAlready) {
@@ -24,8 +25,10 @@ const registerUser = async (req, res, next) => {
     const user = await createUser({
         email,
         password: hashedPassword,
+        role,
         isVerified: false,
     });
+
     
     // Generate a verification token
     const verificationToken = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
@@ -82,7 +85,7 @@ const verifyEmail = async (req, res) => {
         user.isVerified = true;
         await user.save();
 
-        res.status(200).json({ message: 'Email verified successfully' });
+        res.status(200).json({ message: 'Email verified successfully', user, token });
     } catch (error) {
         console.error('Email Verification Error:', error);
         res.status(400).json({ message: 'Invalid or expired token' });

@@ -8,6 +8,7 @@ const Signup = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [termsAccepted, setTermsAccepted] = useState(false);
+  const [role, setRole] = useState('');
   const navigate = useNavigate();
 
   const handleSubmit = (e) => {
@@ -16,10 +17,9 @@ const Signup = () => {
     axios.post(`${import.meta.env.VITE_BASE_URL}/user/register`, { 
       email,
       password,
-      
+      role
     })
       .then(response => {
-        // Handle successful signup (e.g., redirect to login page)
         toast.success('Signup successful! Please verify your email.');
         navigate('/verify-email'); // Navigate to the VerifyEmailPrompt page
         // localStorage.setItem('token', response.data.token);
@@ -35,6 +35,7 @@ const Signup = () => {
     setEmail('');
     setPassword('');
     setConfirmPassword('');
+    setRole('');
   };
 
   return (
@@ -68,7 +69,19 @@ const Signup = () => {
               className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
             />
           </div>
-
+          <div className="mb-4">
+            <label htmlFor="role" className="block text-sm text-gray-600">Role</label>
+            <select
+              id="role"
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
+              className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            >
+              <option value="">Select a role</option>
+                <option value="user">User</option>
+                <option value="admin">Admin</option>
+            </select>
+          </div>
           
           <div className="flex items-center mb-6">
             <input
