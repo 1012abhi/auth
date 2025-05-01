@@ -16,7 +16,6 @@ import OAuthSuccess from './pages/OAuthSuccess'
 import MyAccount from './components/MyAccount'
 
 function App() {
-
   return (
     <>
         <Routes>

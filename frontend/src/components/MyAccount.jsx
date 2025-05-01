@@ -6,11 +6,10 @@ import axios from "axios";
 import { useEffect } from "react";
 const MyAccount = () => {
     const [activeTab, setActiveTab] = useState("Purchases");
-    const navigate = useNavigate();
     const tabs = ["Purchases", "General", "Security"];
 
 return (
-    <div className="min-h-screen bg-white px-6 py-8">
+    <div className="min-h-screen bg-white px-6">
       {/* Top Bar */}
       <TopBar tabs={tabs} activeTab={activeTab} setActiveTab={setActiveTab} />
     <div className="max-w-6xl mx-auto flex flex-col items-center">
@@ -41,9 +40,16 @@ return (
   );
 };
 
-const TopBar = ({ tabs, activeTab, setActiveTab }) => {
+const TopBar = () => {
+  const navigate = useNavigate();
+  const handleLogout = () => {
+    // Perform logout logic here, e.g., clear user session, redirect to login page
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    navigate("/login");
+}
   return (
-    <div className="flex justify-between items-center max-w-6xl mx-auto mb-6">
+    <div className="w-full px-4 md:px-10 py-3 bg-white flex flex-col md:flex-row items-center justify-between gap-4 md:gap-0">
       {/* Profile Image */}
       <Link to="/" className="flex items-center gap-2">
       <img 
@@ -56,7 +62,9 @@ const TopBar = ({ tabs, activeTab, setActiveTab }) => {
       </Link>
 
       {/* Logout Button */}
-      <button className="bg-black text-white px-6 py-3 rounded-full text-sm cursor-pointer">
+      <button 
+      onClick={handleLogout}
+      className="bg-black text-white px-6 py-3 rounded-full text-sm cursor-pointer">
         Logout
       </button>
     </div>

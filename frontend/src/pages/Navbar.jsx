@@ -21,11 +21,7 @@ const Navbar = () => {
     const handleLogoClick = () => {
         navigate("/");
     };
-    const handleLogout = () => {
-        // Perform logout logic here, e.g., clear user session, redirect to login page
-        localStorage.removeItem("token");
-        navigate("/login");
-    }
+    
   return (
     <div className="w-full px-4 md:px-10 py-3 bg-white flex flex-col md:flex-row items-center justify-between gap-4 md:gap-0">
       
@@ -35,7 +31,7 @@ const Navbar = () => {
           onClick={handleLogoClick}
           src="https://appx-wsb-gcp-mcdn.akamai.net.in/subject/2023-01-17-0.17044360120951185.jpg"
           alt="Logo"
-          className="w-10 h-10 rounded-full object-cover"
+          className="w-12 h-12 rounded-full object-cover"
         />
       </div>
 
@@ -54,15 +50,7 @@ const Navbar = () => {
       </div>
 
       <div className="flex items-center justify-between w-full md:w-auto gap-4">
-        {/* Right: Buttons */}
-        <div className="">
-        
-        <button 
-        onClick={handleLogout}
-        className="bg-blue-500 hover:bg-blue-600 text-white px-5 py-2 rounded-full font-normal cursor-pointer transition duration-300 ease-in-out">
-          Logout
-        </button>
-      </div>
+      
       <div>
         <Link to="/profile">
           <FiUser className="cursor-pointer hover:text-primary" />
