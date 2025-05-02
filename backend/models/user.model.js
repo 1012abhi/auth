@@ -22,7 +22,9 @@ const userSchema = new Schema({
     },
     googleId: {
         type: String,
-        // unique: true,
+        unique: true,
+        sparse: true, // 🔥 this makes 'null' allowed multiple times
+
     },
     name: {
         type: String,

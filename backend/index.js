@@ -43,7 +43,10 @@ app.use(passport.session());
 
 
 import userRoutes from "./routes/user.routes.js";
+import adminRoutes from "./routes/admin.routes.js"
+
 app.use("/api/user", userRoutes);
+app.use("/api/admin", adminRoutes)
 
 app.listen(PORT, () => {    
   console.log(`Server is running on http://localhost:${PORT}`);
