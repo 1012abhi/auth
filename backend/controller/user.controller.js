@@ -94,30 +94,73 @@ const verifyEmail = async (req, res) => {
 
 const loginUser = async (req, res, next) => {
     const errors = validationResult(req);
-    if(!errors.isEmpty()) {
+    if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
     }
 
-    const { email, password } = req.body
-    
-    const user = await userModel.findOne({ email }).select('+password');
-    
-    if (!user) {
-        return res.status(401).json({message: 'Invalid email or password'});
+    const { email, password } = req.body;
+
+    try {
+        // Find the user by email and include the password field
+        const user = await userModel.findOne({ email }).select('+password');
+
+        if (!user) {
+            return res.status(401).json({ message: 'Invalid email or password' });
+        }
+
+        // Check if the password matches
+        const isMatch = await user.comparePassword(password);
+
+        if (!isMatch) {
+            return res.status(401).json({ message: 'Invalid email or password' });
+        }
+
+        // Check if the user's email is verified
+        if (!user.isVerified) {
+            return res.status(403).json({ message: 'Please verify your email before logging in' });
+        }
+
+        // Generate a JWT token
+        const token = user.generateAuthToken();
+
+        // Set the token in a cookie
+        res.cookie('token', token, {
+            httpOnly: true,
+            // secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+        });
+
+        // Role-based redirection or response
+        if (user.role === 'admin') {
+            return res.status(200).json({
+                message: 'Login successful',
+                role: 'admin',
+                token,
+                user: {
+                    id: user._id,
+                    email: user.email,
+                    role: user.role,
+                },
+            });
+        } else if (user.role === 'user') {
+            return res.status(200).json({
+                message: 'Login successful',
+                role: 'user',
+                token,
+                user: {
+                    id: user._id,
+                    email: user.email,
+                    role: user.role,
+                },
+            });
+        } else {
+            return res.status(403).json({ message: 'Invalid role. Please contact support.' });
+        }
+    } catch (error) {
+        console.error('Login Error:', error);
+        res.status(500).json({ message: 'Internal server error' });
     }
-
-    const isMatch = await user.comparePassword(password)
-
-    if (!isMatch) {
-        return res.status(401).json({ messages: 'Invalid email or password'})
-    }
-
-    const token = user.generateAuthToken();
-
-    res.cookie('token', token)
-    res.status(200).json({token, user})
-
-}
+};
 
 const getUserProfile = async (req, res, next) => {
     res.status(200).json(req.user)
