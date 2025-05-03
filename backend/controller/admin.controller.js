@@ -272,6 +272,26 @@ const getAllCourses = async (req, res, next) => {
     }
 }
 
+//getallcourses by who has created the course
+const getAllCoursesByUser = async (req, res, next) => {
+    const { id } = req.params
+    try {
+        const courses = await courseModel.find({ createdBy: id })
+        // .populate("createdBy", "-password").lean().exec()
+        return res.status(200).json({
+            success: true,
+            message: "Courses fetched successfully",
+            data: courses
+        })
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error",
+            error: error.message
+        })
+    }
+}
+
 const updateCourse = async (req, res, next) => {
 
     const { id } = req.params
@@ -335,4 +355,4 @@ const deleteCourse = async (req, res, next) => {
 
 export {getAllUsers, createCourse, getAllCourses, 
     updateCourse, deleteCourse, updateUser, deleteUser,
-    createUser }
+    createUser, getAllCoursesByUser }

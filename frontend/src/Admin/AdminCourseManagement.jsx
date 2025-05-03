@@ -1,70 +1,158 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FaEdit, FaTrash } from "react-icons/fa";
+import axios from "axios"; // Import axios for API calls
 
 const AdminCourseManagement = () => {
-  const [courses, setCourses] = useState([
-    {
-      id: 1,
-      title: "Complete Web Development",
-      price: 5999,
-      discount: 20,
-      description: "Learn full-stack web development from scratch.",
-    },
-    {
-      id: 2,
-      title: "Blockchain Basics",
-      price: 4999,
-      discount: 15,
-      description: "Understand the fundamentals of blockchain technology.",
-    },
-  ]);
-
+  const [courses, setCourses] = useState([]);
+  const [adminId, setAdminId] = useState(""); // Define adminId state
   const [newCourse, setNewCourse] = useState({
     title: "",
     price: "",
     discount: "",
     description: "",
+    category: "",
+    thumbnail: "",
   });
-
   const [editingCourseId, setEditingCourseId] = useState(null);
+
+  // Fetch courses created by the admin
+  const fetchCoursesByAdmin = async (id) => {
+    try {
+      const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/admin/getcourse/${id}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`, // Include the token in the Authorization header
+        },
+      });
+      console.log("Fetched courses by admin:", response.data); // Log the fetched data for debugging
+      
+      if (response.data.success) {
+        setCourses(response.data.data); // Update the courses state with the fetched data
+      } else {
+        alert("Failed to fetch courses.");
+      }
+    } catch (error) {
+      console.error("Error fetching courses by admin:", error);
+      alert("An error occurred while fetching courses.");
+    }
+  };
+
+  // Fetch courses when the component mounts
+  useEffect(() => {
+    const adminIdFromToken = localStorage.getItem("user"); // Assuming admin ID is stored in localStorage
+    
+    if (adminIdFromToken) {
+      try {
+        const parsedAdmin = JSON.parse(adminIdFromToken); // Parse the JSON string
+        console.log('Parsed admin:', parsedAdmin);
+        console.log('Admin ID:', parsedAdmin.id);
+  
+        setAdminId(parsedAdmin.id); // Set the adminId state
+        fetchCoursesByAdmin(parsedAdmin.id); // Fetch courses created by the admin
+      } catch (error) {
+        console.error("Error parsing adminIdFromToken:", error);
+        alert("Invalid admin data. Please log in again.");
+      }
+    } else {
+      alert("Admin ID not found. Please log in again.");
+    }
+  }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setNewCourse({ ...newCourse, [name]: value });
   };
 
-  const handleAddCourse = (e) => {
+  const handleAddCourse = async (e) => {
     e.preventDefault();
-    if (!newCourse.title || !newCourse.price || !newCourse.description) {
+    if (!newCourse.title || !newCourse.price || !newCourse.description || !newCourse.category || !newCourse.thumbnail) {
       alert("Please fill in all required fields.");
       return;
     }
 
-    const newId = courses.length ? courses[courses.length - 1].id + 1 : 1;
-    setCourses([...courses, { ...newCourse, id: newId }]);
-    setNewCourse({ title: "", price: "", discount: "", description: "" });
+    try {
+      const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/admin/createcourse`, newCourse, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+      if (response.data.success) {
+        alert("Course added successfully!");
+        setCourses([...courses, response.data.data]); // Add the new course to the list
+        setNewCourse({ title: "", price: "", discount: "", description: "", category: "", thumbnail: "" });
+      } else {
+        alert(response.data.message || "Failed to add course.");
+      }
+    } catch (error) {
+      console.error("Error adding course:", error);
+      alert("An error occurred while adding the course.");
+    }
   };
 
   const handleEditCourse = (id) => {
-    const courseToEdit = courses.find((course) => course.id === id);
+    const courseToEdit = courses.find((course) => course._id === id);
     setNewCourse(courseToEdit);
     setEditingCourseId(id);
   };
 
-  const handleUpdateCourse = (e) => {
+  const handleUpdateCourse = async (e) => {
     e.preventDefault();
-    setCourses(
-      courses.map((course) =>
-        course.id === editingCourseId ? { ...newCourse, id: editingCourseId } : course
-      )
-    );
-    setNewCourse({ title: "", price: "", discount: "", description: "" });
-    setEditingCourseId(null);
+    try {
+      const token = localStorage.getItem("token"); // Retrieve the token from localStorage
+      if (!token) {
+        alert("Authentication token is missing. Please log in again.");
+        return;
+      }
+
+      const response = await axios.put(`${import.meta.env.VITE_BASE_URL}/admin/updatecourse/${editingCourseId}`, newCourse,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+          },
+        }
+      );
+      if (response.data.success) {
+        alert("Course updated successfully!");
+        setCourses(
+          courses.map((course) =>
+            course._id === editingCourseId ? { ...newCourse, _id: editingCourseId } : course
+          )
+        );
+        setNewCourse({ title: "", price: "", discount: "", description: "", category: "", thumbnail: "" });
+        setEditingCourseId(null);
+      } else {
+        alert(response.data.message || "Failed to update course.");
+      }
+    } catch (error) {
+      console.error("Error updating course:", error);
+      alert("An error occurred while updating the course.");
+    }
   };
 
-  const handleDeleteCourse = (id) => {
+  const handleDeleteCourse = async (id) => {
     if (window.confirm("Are you sure you want to delete this course?")) {
-      setCourses(courses.filter((course) => course.id !== id));
+      try {
+        const token = localStorage.getItem("token"); // Retrieve the token from localStorage
+        if (!token) {
+          alert("Authentication token is missing. Please log in again.");
+          return;
+        }
+        const response = await axios.delete(`${import.meta.env.VITE_BASE_URL}/admin/deletecourse/${id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+            },
+          }
+        );
+        if (response.data.success) {
+          alert("Course deleted successfully!");
+          setCourses(courses.filter((course) => course._id !== id));
+        } else {
+          alert(response.data.message || "Failed to delete course.");
+        }
+      } catch (error) {
+        console.error("Error deleting course:", error);
+        alert("An error occurred while deleting the course.");
+      }
     }
   };
 
@@ -113,6 +201,28 @@ const AdminCourseManagement = () => {
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Category</label>
+            <input
+              type="text"
+              name="category"
+              value={newCourse.category}
+              onChange={handleInputChange}
+              required
+              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Thumbnail URL</label>
+            <input
+              type="text"
+              name="thumbnail"
+              value={newCourse.thumbnail}
+              onChange={handleInputChange}
+              required
+              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
           <div className="md:col-span-2">
             <label className="block text-sm font-medium text-gray-700">Description</label>
             <textarea
@@ -142,26 +252,26 @@ const AdminCourseManagement = () => {
                 <th className="px-4 py-2 text-left">Title</th>
                 <th className="px-4 py-2 text-left">Price (₹)</th>
                 <th className="px-4 py-2 text-left">Discount (%)</th>
-                <th className="px-4 py-2 text-left">Description</th>
+                <th className="px-4 py-2 text-left">Category</th>
                 <th className="px-4 py-2 text-left">Actions</th>
               </tr>
             </thead>
             <tbody>
               {courses.map((course) => (
-                <tr key={course.id} className="border-t border-gray-200">
+                <tr key={course._id} className="border-t border-gray-200">
                   <td className="px-4 py-2">{course.title}</td>
                   <td className="px-4 py-2">₹{course.price}</td>
                   <td className="px-4 py-2">{course.discount || "N/A"}</td>
-                  <td className="px-4 py-2">{course.description}</td>
+                  <td className="px-4 py-2">{course.category}</td>
                   <td className="px-4 py-2 space-x-2">
                     <button
-                      onClick={() => handleEditCourse(course.id)}
+                      onClick={() => handleEditCourse(course._id)}
                       className="text-blue-600 hover:text-blue-800"
                     >
                       <FaEdit />
                     </button>
                     <button
-                      onClick={() => handleDeleteCourse(course.id)}
+                      onClick={() => handleDeleteCourse(course._id)}
                       className="text-red-600 hover:text-red-800"
                     >
                       <FaTrash />

@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { body, param } from 'express-validator'
 import { authUser } from "../middleware/auth.middleware.js";
-import { createCourse, createUser, deleteCourse, deleteUser, getAllCourses, getAllUsers, updateCourse, updateUser } from "../controller/admin.controller.js";
+import { createCourse, createUser, deleteCourse, deleteUser, getAllCourses, getAllCoursesByUser, getAllUsers, updateCourse, updateUser } from "../controller/admin.controller.js";
 import {isAdmin} from "../middleware/admin.middleware.js"
 
 const router = Router()
@@ -31,6 +31,9 @@ router.post('/createcourse', authUser, isAdmin,
     body('thumbnail').notEmpty().withMessage('thumbnail is required'), 
 createCourse)
 router.get('/getallcourses', authUser, isAdmin, getAllCourses)
+router.get('/getcourse/:id', authUser, isAdmin,
+    param('id').isMongoId().withMessage('Invalid course id'), 
+    getAllCoursesByUser)
 router.put('/updatecourse/:id', authUser, isAdmin, 
     param('id').isMongoId().withMessage('Invalid course id'), 
     body('title').notEmpty().withMessage('title is required'), 
