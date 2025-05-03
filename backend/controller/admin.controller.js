@@ -2,6 +2,7 @@ import { validationResult } from 'express-validator'
 import {userModel} from "../models/user.model.js";
 import { course, updateCourses } from '../services/admin.service.js';
 import { courseModel } from '../models/course.model.js';
+import nodemailer from "nodemailer";
 
 // User Controller
 const createUser = async (req, res, next) => {
@@ -198,9 +199,54 @@ const createCourse = async (req, res, next) => {
         const result = await course(courseData);
 
         if (result.success) {
-        return res.status(201).json(result);
+            // Fetch all users' email addresses excluding admins
+            const users = await userModel.find({ role: { $ne: "admin" } }, "email").lean();
+            if (users.length === 0) {
+                return res.status(200).json({
+                    success: true,
+                    message: "Course created successfully, but no users to notify.",
+                    data: result.data,
+                });
+            }
+            const emailAddresses = users.map((user) => user.email);
+
+            // Send notification email to all users
+            const transporter = nodemailer.createTransport({
+                host: 'smtp.gmail.com',
+                port: 587,
+                secure: false, // Use TLS
+                service: process.env.EMAIL_SERVICE,
+                auth: {
+                    user: process.env.EMAIL_USER, // Your email address
+                    pass: process.env.EMAIL_PASS, // Your email password or app password
+                },
+            });
+
+            const mailOptions = {
+                from: process.env.EMAIL_USER,
+                to: emailAddresses, // Send to all users
+                subject: "New Course Available: " + title,
+                html: `
+                    <h1>New Course Alert!</h1>
+                    <p>We are excited to announce a new course: <strong>${title}</strong>.</p>
+                    <p>${description}</p>
+                    <p><strong>Category:</strong> ${category}</p>
+                    <p><strong>Price:</strong> ₹${price}</p>
+                    <p>Enroll now and start learning!</p>
+                `,
+            };
+
+            transporter.sendMail(mailOptions, (error, info) => {
+                if (error) {
+                    console.error("Error sending email:", error);
+                } else {
+                    console.log("Email sent:", info.response);
+                }
+            });
+
+            return res.status(201).json(result);
         } else {
-        return res.status(400).json(result);
+            return res.status(400).json(result);
         }
     } catch (error) {
         console.error("Error in createCourseController:", error);

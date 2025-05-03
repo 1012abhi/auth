@@ -20,6 +20,7 @@ import UserTable from './Admin/UserTable'
 import AdminCourseManagement from './Admin/AdminCourseManagement'
 import AdminPurchasedCourses from './Admin/AdminPurchasedCourses';
 import AdminDashboard from './Admin/AdminDashboard';
+import PurchaseUserPage from './Admin/PurchaseUserPage'
 
 function App() {
   return (
@@ -67,6 +68,7 @@ function App() {
           <Route path="/admin/usertable" element={<UserTable />} />
           <Route path="/admin/course" element={<AdminCourseManagement />} />
           <Route path="/admin/purchased-courses" element={<AdminPurchasedCourses />} />
+          <Route path="/admin/purchased-courses/:courseId" element={<PurchaseUserPage />} />
           <Route path="activity" element={<div>Activity Component</div>} />
           <Route path="hr-dashboard" element={<div>HR Dashboard Component</div>} />
           <Route path="holidays" element={<div>Holidays Component</div>} />

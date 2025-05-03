@@ -53,18 +53,20 @@ const statusColor = {
 export default function Users() {
   return (
     <div className="p-4">
-      <div className="flex justify-between items-center mb-4">
+      {/* <div className="flex justify-between items-center mb-4">
         <h2 className="text-2xl font-semibold">Users List</h2>
-        <button className="bg-teal-500 text-white px-4 py-2 rounded">Add User</button>
-      </div>
+      </div> */}
 
-      <div className="flex justify-between mb-4">
+      <div className="flex justify-between mb-4 ">
         <input
-          type="text"
+          type="text"j
           placeholder="Search here..."
           className="border border-gray-300 px-4 py-2 rounded w-full max-w-md"
         />
-        <button className="ml-4 bg-red-500 text-white px-4 py-2 rounded">Clear</button>
+        <div className="flex space-x-4">
+          <button className="bg-teal-500 text-white px-4 py-2 rounded">Add User</button>
+          <button className="ml-4 bg-red-500 text-white px-4 py-2 rounded">Clear</button>
+        </div>
       </div>
 
       <div className="overflow-x-auto">

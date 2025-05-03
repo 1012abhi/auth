@@ -112,7 +112,7 @@ const AdminDashboard = () => {
   };
 
   return (
-    <div className="p-6 bg-gray-100 min-h-screen">
+    <div className="p-6 bg-gray-100 min-h-screen rounded-2xl">
       <h1 className="text-3xl font-bold mb-6 text-center">Admin Dashboard</h1>
 
       {/* Metrics Section */}

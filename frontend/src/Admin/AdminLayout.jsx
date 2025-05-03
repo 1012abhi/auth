@@ -9,7 +9,8 @@ const menuItems = [
   { name: "Users", icon: <FaUserShield />, path: "/admin/userlist" },
   { name: "Course", icon: <FaUserShield />, path: "/admin/course" },
   { name: "Purchased Courses", icon: <FaUserShield />, path: "/admin/purchased-courses" },
-  { name: "HR Dashboard", icon: <FaHome />, path: "/admin/hr-dashboard" },
+  { name: "Payment", icon: <FaHome />, path: "/admin/hr-dashboard" },
+  { name: "Order", icon: <FaHome />, path: "/admin/hr-dashboard" },
   { name: "Holidays", icon: <FaCalendarAlt />, path: "/admin/holidays" },
   { name: "Events", icon: <MdEvent />, path: "/admin/events" },
   { name: "Activities", icon: <MdOutlineTaskAlt />, path: "/admin/activities" },
@@ -70,9 +71,9 @@ export default function AdminLayout() {
       <div className="ml-64 flex-1 flex flex-col">
         {/* Header */}
         <header className="bg-white shadow-md px-6 py-4 fixed top-0 left-64 right-0 z-10 flex justify-between items-center">
-          <h1 className="text-xl font-bold text-gray-800">Welcome to Admin Panel</h1>
+          <h1 className="text-xl text-gray-800 font-bold font-stretch-50%">Welcome to Admin Panel</h1>
           <div className="flex items-center space-x-4">
-            <span className="text-gray-600">Admin</span>
+            <span className="text-gray-600 font-stretch-50%">Admin</span>
             <button
               onClick={handleLogout}
               className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition"
