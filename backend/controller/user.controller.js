@@ -123,6 +123,9 @@ const loginUser = async (req, res, next) => {
         // Generate a JWT token
         const token = user.generateAuthToken();
 
+        user.status = 'online';
+        await user.save();
+
         // Set the token in a cookie
         res.cookie('token', token, {
             httpOnly: true,
@@ -140,9 +143,11 @@ const loginUser = async (req, res, next) => {
                     id: user._id,
                     email: user.email,
                     role: user.role,
+                    status: user.status,
                 },
             });
         } else if (user.role === 'user') {
+           
             return res.status(200).json({
                 message: 'Login successful',
                 role: 'user',
@@ -151,6 +156,7 @@ const loginUser = async (req, res, next) => {
                     id: user._id,
                     email: user.email,
                     role: user.role,
+                    status: user.status,
                 },
             });
         } else {
@@ -168,13 +174,16 @@ const getUserProfile = async (req, res, next) => {
 
 const logoutUser = async (req, res, next) => {
     try {
+        const user = await userModel.findById(req.user._id);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        user.status = 'offline';
+        await user.save();
+        console.log('User status updated to offline:', user); // Debugging: Log the updated user
+        
         // Clear the token from cookies
         res.clearCookie('token', { httpOnly: true, secure: true, sameSite: 'strict' });
-
-        // Optionally, you can blacklist the token if you are maintaining a token blacklist
-        // const token = req.cookies.token || req.headers.authorization.split(' ')[1];
-        // await BlacklistToken.create({ token });
-
         res.status(200).json({ message: 'Logged out successfully' });
     } catch (error) {
         console.error('Logout error:', error);

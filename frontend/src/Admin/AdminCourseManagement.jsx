@@ -15,6 +15,10 @@ const AdminCourseManagement = () => {
   });
   const [editingCourseId, setEditingCourseId] = useState(null);
 
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5; // Number of items per page
+
   // Fetch courses created by the admin
   const fetchCoursesByAdmin = async (id) => {
     try {
@@ -22,9 +26,41 @@ const AdminCourseManagement = () => {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`, // Include the token in the Authorization header
         },
-      });
+      }); <tbody>
+        {currentCourses.map((course) => (
+          <tr key={course?._id} className="border-t border-gray-200">
+            <td className="px-4 py-2">{course?.title}</td>
+            <td className="px-4 py-2">₹{course?.price}</td>
+            <td className="px-4 py-2">{course?.discount || "N/A"}</td>
+            <td className="px-4 py-2">{course?.category}</td>
+            <td className="px-4 py-2">
+              {course?.createdAt
+                ? new Intl.DateTimeFormat("en-US", {
+                  year: "numeric",
+                  month: "short",
+                  day: "2-digit",
+                }).format(new Date(course.createdAt))
+                : "N/A"}
+            </td>
+            <td className="px-4 py-2 space-x-2">
+              <button
+                onClick={() => handleEditCourse(course?._id)}
+                className="text-blue-600 hover:text-blue-800"
+              >
+                <FaEdit />
+              </button>
+              <button
+                onClick={() => handleDeleteCourse(course?._id)}
+                className="text-red-600 hover:text-red-800"
+              >
+                <FaTrash />
+              </button>
+            </td>
+          </tr>
+        ))}
+      </tbody>
       console.log("Fetched courses by admin:", response.data); // Log the fetched data for debugging
-      
+
       if (response.data.success) {
         setCourses(response.data.data); // Update the courses state with the fetched data
       } else {
@@ -39,13 +75,13 @@ const AdminCourseManagement = () => {
   // Fetch courses when the component mounts
   useEffect(() => {
     const adminIdFromToken = localStorage.getItem("user"); // Assuming admin ID is stored in localStorage
-    
+
     if (adminIdFromToken) {
       try {
         const parsedAdmin = JSON.parse(adminIdFromToken); // Parse the JSON string
         console.log('Parsed admin:', parsedAdmin);
         console.log('Admin ID:', parsedAdmin.id);
-  
+
         setAdminId(parsedAdmin.id); // Set the adminId state
         fetchCoursesByAdmin(parsedAdmin.id); // Fetch courses created by the admin
       } catch (error) {
@@ -77,8 +113,8 @@ const AdminCourseManagement = () => {
       });
       if (response.data.success) {
         alert("Course added successfully!");
-        setCourses([...courses, response.data.data]); // Add the new course to the list
         setNewCourse({ title: "", price: "", discount: "", description: "", category: "", thumbnail: "" });
+        fetchCoursesByAdmin(adminId); // Fetch the updated list of courses
       } else {
         alert(response.data.message || "Failed to add course.");
       }
@@ -87,7 +123,6 @@ const AdminCourseManagement = () => {
       alert("An error occurred while adding the course.");
     }
   };
-
   const handleEditCourse = (id) => {
     const courseToEdit = courses.find((course) => course._id === id);
     setNewCourse(courseToEdit);
@@ -154,6 +189,17 @@ const AdminCourseManagement = () => {
         alert("An error occurred while deleting the course.");
       }
     }
+  };
+
+  // Pagination logic
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentCourses = courses.slice(indexOfFirstItem, indexOfLastItem);
+
+  const totalPages = Math.ceil(courses.length / itemsPerPage);
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
   };
 
   return (
@@ -253,25 +299,35 @@ const AdminCourseManagement = () => {
                 <th className="px-4 py-2 text-left">Price (₹)</th>
                 <th className="px-4 py-2 text-left">Discount (%)</th>
                 <th className="px-4 py-2 text-left">Category</th>
+                <th className="px-4 py-2 text-left">Created date</th>
                 <th className="px-4 py-2 text-left">Actions</th>
               </tr>
             </thead>
             <tbody>
-              {courses.map((course) => (
-                <tr key={course._id} className="border-t border-gray-200">
-                  <td className="px-4 py-2">{course.title}</td>
-                  <td className="px-4 py-2">₹{course.price}</td>
-                  <td className="px-4 py-2">{course.discount || "N/A"}</td>
-                  <td className="px-4 py-2">{course.category}</td>
+              {currentCourses.map((course) => (
+                <tr key={course?._id} className="border-t border-gray-200">
+                  <td className="px-4 py-2">{course?.title}</td>
+                  <td className="px-4 py-2">₹{course?.price}</td>
+                  <td className="px-4 py-2">{course?.discount || "N/A"}</td>
+                  <td className="px-4 py-2">{course?.category}</td>
+                  <td className="px-4 py-2">
+                    {course?.createdAt
+                      ? new Intl.DateTimeFormat("en-US", {
+                        year: "numeric",
+                        month: "short",
+                        day: "2-digit",
+                      }).format(new Date(course.createdAt))
+                      : "N/A"}
+                  </td>
                   <td className="px-4 py-2 space-x-2">
                     <button
-                      onClick={() => handleEditCourse(course._id)}
+                      onClick={() => handleEditCourse(course?._id)}
                       className="text-blue-600 hover:text-blue-800"
                     >
                       <FaEdit />
                     </button>
                     <button
-                      onClick={() => handleDeleteCourse(course._id)}
+                      onClick={() => handleDeleteCourse(course?._id)}
                       className="text-red-600 hover:text-red-800"
                     >
                       <FaTrash />
@@ -281,6 +337,26 @@ const AdminCourseManagement = () => {
               ))}
             </tbody>
           </table>
+        </div>
+      </div>
+      {/* Pagination Controls */}
+      <div className="flex justify-between gap-2 items-center mt-6">
+        {/* Total Pages Info */}
+        <p className="text-gray-600 mb-2">
+          Page {currentPage} of {totalPages}
+        </p>
+        {/* Pagination Buttons */}
+        <div className="flex space-x-2">
+          {Array.from({ length: totalPages }, (_, index) => (
+            <button
+              key={index}
+              onClick={() => handlePageChange(index + 1)}
+              className={`px-4 py-2 rounded-full ${currentPage === index + 1 ? "bg-blue-600 text-white" : "bg-gray-200"
+                } hover:bg-blue-500 transition duration-300`}
+            >
+              {index + 1}
+            </button>
+          ))}
         </div>
       </div>
     </div>

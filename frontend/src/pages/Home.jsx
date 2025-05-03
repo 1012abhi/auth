@@ -60,7 +60,9 @@ const Home = () => {
         <div className=" bg-white rounded-2xl p-1 shadow-md mb-4">
           <Navbar />
         </div>
+        <div>
         <CourseList />
+        </div>
       <h2 className="text-3xl font-bold mb-10">Why 100xdevs?</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {features.map((item, idx) => (

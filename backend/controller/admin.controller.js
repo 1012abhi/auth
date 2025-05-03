@@ -97,8 +97,6 @@ const getAllUsers = async (req, res, next) => {
 }
 
 const updateUser = async (req, res, next) => {
-    const { id } = req.params
-    const { name, email, role } = req.body
     const errors = validationResult(req)
     if (!errors.isEmpty()) {
         return res.status(422).json({
@@ -107,6 +105,8 @@ const updateUser = async (req, res, next) => {
             error: errors.array()
         })
     }
+    const { id } = req.params
+    const { name, email, role } = req.body
     try {
         const user = await userModel.findByIdAndUpdate(id, { name, email, role }, { new: true, runValidators: true })
         if (!user) {

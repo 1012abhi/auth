@@ -1,65 +1,102 @@
-import React from "react";
-
-const users = [
-  {
-    avatar: "https://randomuser.me/api/portraits/men/32.jpg",
-    name: "Marshall Nichols",
-    email: "marshall-n@gmail.com",
-    status: "SUPER ADMIN",
-    date: "24 Jun, 2015",
-    role: "CEO and Founder",
-  },
-  {
-    avatar: "https://randomuser.me/api/portraits/women/44.jpg",
-    name: "Susie Willis",
-    email: "sussie-w@gmail.com",
-    status: "ADMIN",
-    date: "28 Jun, 2015",
-    role: "Team Lead",
-  },
-  {
-    avatar: "https://randomuser.me/api/portraits/men/32.jpg",
-    name: "Marshall Nichols",
-    email: "marshall-n@gmail.com",
-    status: "ADMIN",
-    date: "24 Jun, 2015",
-    role: "Team Lead",
-  },
-  {
-    avatar: "https://randomuser.me/api/portraits/women/65.jpg",
-    name: "Erin Gonzales",
-    email: "Erinonzales@gmail.com",
-    status: "EMPLOYEE",
-    date: "21 July, 2015",
-    role: "Web Developer",
-  },
-  {
-    avatar: "https://randomuser.me/api/portraits/women/55.jpg",
-    name: "Ava Alexander",
-    email: "alexander@gmail.com",
-    status: "HR ADMIN",
-    date: "21 July, 2015",
-    role: "HR",
-  },
-];
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 
 const statusColor = {
-  "SUPER ADMIN": "bg-red-500",
-  ADMIN: "bg-blue-500",
-  EMPLOYEE: "bg-yellow-500",
-  "HR ADMIN": "bg-green-500",
+  user: "bg-yellow-500",
+  admin: "bg-blue-500",
+  online: "bg-green-500",
+  offline: "bg-red-500",
 };
 
 export default function Users() {
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch all users from the backend
+  const fetchAllUsers = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert("Authentication token is missing. Please log in again.");
+        return;
+      }
+
+      const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/admin/getallusers`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.data.success) {
+        setUsers(response.data.data);
+      } else {
+        alert("Failed to fetch users.");
+      }
+    } catch (error) {
+      console.error("Error fetching users:", error);
+      alert("An error occurred while fetching users.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Update user
+  const handleUpdateUser = async (id, updatedData) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.put(
+        `${import.meta.env.VITE_BASE_URL}/admin/updateuser/${id}`,
+        updatedData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.data.success) {
+        alert("User updated successfully.");
+        fetchAllUsers(); // Refresh the user list
+      } else {
+        alert("Failed to update user.");
+      }
+    } catch (error) {
+      console.error("Error updating user:", error);
+      alert("An error occurred while updating the user.");
+    }
+  };
+
+  // Delete user
+  const handleDeleteUser = async (id) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.delete(`${import.meta.env.VITE_BASE_URL}/admin/deleteuser/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.data.success) {
+        alert("User deleted successfully.");
+        fetchAllUsers(); // Refresh the user list
+      } else {
+        alert("Failed to delete user.");
+      }
+    } catch (error) {
+      console.error("Error deleting user:", error);
+      alert("An error occurred while deleting the user.");
+    }
+  };
+
+  useEffect(() => {
+    fetchAllUsers();
+  }, []);
+
   return (
     <div className="p-4">
-      {/* <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-semibold">Users List</h2>
-      </div> */}
-
-      <div className="flex justify-between mb-4 ">
+      <div className="flex justify-between mb-4">
         <input
-          type="text"j
+          type="text"
           placeholder="Search here..."
           className="border border-gray-300 px-4 py-2 rounded w-full max-w-md"
         />
@@ -69,53 +106,91 @@ export default function Users() {
         </div>
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="min-w-full table-auto border border-gray-200">
-          <thead className="bg-gray-100">
-            <tr>
-              <th className="px-4 py-2 text-left">Avatar</th>
-              <th className="px-4 py-2 text-left">Name</th>
-              <th className="px-4 py-2 text-left">Email</th>
-              <th className="px-4 py-2 text-left">Status</th>
-              <th className="px-4 py-2 text-left">Created Date</th>
-              <th className="px-4 py-2 text-left">Role</th>
-              <th className="px-4 py-2 text-left">Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {users.map((user, idx) => (
-              <tr key={idx} className="border-t border-gray-200">
-                <td className="px-4 py-2">
-                  <img
-                    src={user.avatar}
-                    alt="avatar"
-                    className="w-10 h-10 rounded-full"
-                  />
-                </td>
-                <td className="px-4 py-2">{user.name}</td>
-                <td className="px-4 py-2">{user.email}</td>
-                <td className="px-4 py-2">
-                  <span
-                    className={`text-white px-3 py-1 rounded text-sm ${statusColor[user.status]}`}
-                  >
-                    {user.status}
-                  </span>
-                </td>
-                <td className="px-4 py-2">{user.date}</td>
-                <td className="px-4 py-2">{user.role}</td>
-                <td className="px-4 py-2 space-x-2">
-                  <button className="bg-blue-500 text-white px-2 py-1 rounded">
-                    ✏️
-                  </button>
-                  <button className="bg-red-500 text-white px-2 py-1 rounded">
-                    🗑️
-                  </button>
-                </td>
+      {loading ? (
+        <p className="text-center text-gray-600">Loading users...</p>
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="min-w-full table-auto border border-gray-200">
+            <thead className="bg-gray-100">
+              <tr>
+                <th className="px-4 py-2 text-left">Avatar</th>
+                <th className="px-4 py-2 text-left">Name</th>
+                <th className="px-4 py-2 text-left">Email</th>
+                <th className="px-4 py-2 text-left">Role</th>
+                <th className="px-4 py-2 text-left">Phone</th>
+                <th className="px-4 py-2 text-left">Verified</th>
+                <th className="px-4 py-2 text-left">User Status</th>
+                <th className="px-4 py-2 text-left">Action</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {users.map((user, idx) => (
+                <tr key={idx} className="border-t border-gray-200">
+                  <td className="px-4 py-2">
+                    <img
+                      src={
+                        user.profilePicture ||
+                        "https://images.unsplash.com/photo-1633332755192-727a05c4013d?q=80&w=2080&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                      }
+                      alt="avatar"
+                      className="w-10 h-10 rounded-full"
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src =
+                          "https://static-00.iconduck.com/assets.00/profile-default-icon-2048x2045-u3j7s5nj.png";
+                      }}
+                    />
+                  </td>
+                  <td className="px-4 py-2">{user.name || "N/A"}</td>
+                  <td className="px-4 py-2">{user.email}</td>
+                  <td className="px-4 py-2">
+                    <span
+                      className={`text-white px-3 py-1 rounded text-sm ${statusColor[user.role]}`}
+                    >
+                      {user.role}
+                    </span>
+                  </td>
+                  <td className="px-4 py-2">{user.phone || "N/A"}</td>
+                  <td className="px-4 py-2">
+                    {user.isVerified ? (
+                      <span className="text-green-500 font-semibold">Yes</span>
+                    ) : (
+                      <span className="text-red-500 font-semibold">No</span>
+                    )}
+                  </td>
+                  <td className="px-4 py-2">
+                    <span
+                      className={`text-white px-3 py-1 rounded text-sm ${statusColor[user.status]}`}
+                    >
+                      {user.status || "offline"}
+                    </span>
+                  </td>
+                  <td className="px-4 py-2 space-x-2">
+                    <button
+                      className="bg-blue-500 text-white px-2 py-1 rounded"
+                      onClick={() =>
+                        handleUpdateUser(user._id, {
+                          name: "Updated Name",
+                          email: "updated.email@example.com",
+                          role: "user",
+                        })
+                      }
+                    >
+                      ✏️
+                    </button>
+                    <button
+                      className="bg-red-500 text-white px-2 py-1 rounded"
+                      onClick={() => handleDeleteUser(user._id)}
+                    >
+                      🗑️
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }

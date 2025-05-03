@@ -37,6 +37,11 @@ const userSchema = new Schema({
         type: String,
         default: 'https://res.cloudinary.com/dqj0xgk8h/image/upload/v1697060982/DefaultProfilePicture.png'
     },
+    status: {
+        type: String,
+        enum: ['online', 'offline'],
+        default: 'offline', // Default status is offline
+    },
     isVerified: {
         type: Boolean,
         default: false
