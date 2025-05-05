@@ -130,7 +130,7 @@ export default function Users() {
                     <img
                       src={
                         user.profilePicture ||
-                        "https://images.unsplash.com/photo-1633332755192-727a05c4013d?q=80&w=2080&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                        "https://static-00.iconduck.com/assets.00/profile-default-icon-2048x2045-u3j7s5nj.png"
                       }
                       alt="avatar"
                       className="w-10 h-10 rounded-full"

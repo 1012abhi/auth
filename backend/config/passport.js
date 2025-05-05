@@ -52,6 +52,8 @@ passport.use(
       callbackURL: process.env.GOOGLE_CALLBACK_URL,
     },
     async (accessToken, refreshToken, profile, done) => {
+      console.log(profile, "profile in passport.js");
+      
       try {
         // Check by googleId OR email
         let user = await userModel.findOne({

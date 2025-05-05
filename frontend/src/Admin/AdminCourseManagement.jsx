@@ -26,7 +26,8 @@ const AdminCourseManagement = () => {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`, // Include the token in the Authorization header
         },
-      }); <tbody>
+      }); 
+      <tbody>
         {currentCourses.map((course) => (
           <tr key={course?._id} className="border-t border-gray-200">
             <td className="px-4 py-2">{course?.title}</td>
@@ -207,7 +208,9 @@ const AdminCourseManagement = () => {
       <h1 className="text-3xl font-bold mb-6 text-center">Manage Courses</h1>
 
       {/* Add/Edit Course Form */}
-      <form
+      <form 
+        method="POST"
+        encType="multipart/form-data"
         onSubmit={editingCourseId ? handleUpdateCourse : handleAddCourse}
         className="bg-white p-6 rounded-lg shadow-md mb-8"
       >
@@ -259,15 +262,16 @@ const AdminCourseManagement = () => {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Thumbnail URL</label>
+            <label className="block text-sm font-medium text-gray-700">Thumbnail</label>
             <input
-              type="text"
+              type="file"
               name="thumbnail"
               value={newCourse.thumbnail}
               onChange={handleInputChange}
               required
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className=" w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
+            {/* w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 */}
           </div>
           <div className="md:col-span-2">
             <label className="block text-sm font-medium text-gray-700">Description</label>

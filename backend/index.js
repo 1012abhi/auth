@@ -19,6 +19,9 @@ app.use(cors(
 ));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(express.static("public"));
+app.use(cookieParser());
+// app.use(cookieParser());
 // Middleware for sessions
 app.use(
   session({
@@ -45,6 +48,7 @@ app.use(passport.session());
 import userRoutes from "./routes/user.routes.js";
 import adminRoutes from "./routes/admin.routes.js"
 import courseRoutes from "./routes/course.routes.js";
+import cookieParser from "cookie-parser";
 
 app.use("/api/user", userRoutes);
 app.use("/api/admin", adminRoutes)

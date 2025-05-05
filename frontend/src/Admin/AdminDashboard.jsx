@@ -11,6 +11,7 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
+import axios from "axios";
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
@@ -22,51 +23,90 @@ const AdminDashboard = () => {
     salesData: [],
     salesByDate: [],
   });
-
+  const [totalNonAdminUsers, setTotalNonAdminUsers] = useState(0); // State for non-admin users
+  const [courses, setCourses] = useState([]); // Holds the list of course objects
   const [selectedCourse, setSelectedCourse] = useState("All Courses");
 
   useEffect(() => {
-    // Simulate fetching data from an API
-    const fetchData = async () => {
-      const data = {
-        totalUsers: 150, // Total registered users
-        totalCourses: 10, // Total available courses
-        mostSoldCourse: "Complete Web Development", // Most sold course
-        salesData: [
-          { course: "Complete Web Development", sales: 120 },
-          { course: "Blockchain Basics", sales: 80 },
-          { course: "React for Beginners", sales: 150 },
-          { course: "Node.js Mastery", sales: 100 },
-          { course: "DevOps Essentials", sales: 90 },
-        ],
-        salesByDate: [
-          { date: "2025-04-01", course: "Complete Web Development", quantity: 20 },
-          { date: "2025-04-02", course: "Complete Web Development", quantity: 30 },
-          { date: "2025-04-01", course: "Blockchain Basics", quantity: 15 },
-          { date: "2025-04-02", course: "Blockchain Basics", quantity: 25 },
-          { date: "2025-04-01", course: "React for Beginners", quantity: 40 },
-          { date: "2025-04-02", course: "React for Beginners", quantity: 50 },
-        ],
-      };
-      setDashboardData(data);
+    const fetchDashboardData = async () => {
+      try {
+        // Fetch all users
+        const usersResponse = await axios.get(`${import.meta.env.VITE_BASE_URL}/admin/getallusers`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+
+        if (usersResponse.data.success) {
+          const users = usersResponse.data.data;
+
+          // Filter out admins and count non-admin users
+          const nonAdminUsers = users.filter((user) => user.role !== "admin");
+          setTotalNonAdminUsers(nonAdminUsers.length);
+
+          // Update total users
+          setDashboardData((prevData) => ({
+            ...prevData,
+            totalUsers: users.length,
+          }));
+        } else {
+          alert("Failed to fetch user data.");
+        }
+
+        // Fetch courses created by the logged-in admin
+        const adminIdFromToken = localStorage.getItem("user"); // Assuming admin ID is stored in localStorage
+        if (!adminIdFromToken) {
+          alert("Admin ID not found. Please log in again.");
+          return;
+        }
+
+        const parsedAdmin = JSON.parse(adminIdFromToken); // Parse the JSON string
+        const adminId = parsedAdmin.id;
+
+        const coursesResponse = await axios.get(
+          `${import.meta.env.VITE_BASE_URL}/admin/getcoursesbyadmin/${adminId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        );
+
+        if (coursesResponse.data.success) {
+          const courses = coursesResponse.data.data;
+
+          // Update total courses and course list
+          setCourses(courses);
+          setDashboardData((prevData) => ({
+            ...prevData,
+            totalCourses: courses.length,
+          }));
+        } else {
+          alert("Failed to fetch course data.");
+        }
+      } catch (error) {
+        console.error("Error fetching dashboard data:", error);
+        alert("An error occurred while fetching dashboard data.");
+      }
     };
 
-    fetchData();
+    fetchDashboardData();
   }, []);
 
   const handleCourseChange = (e) => {
     setSelectedCourse(e.target.value);
   };
 
-  const filteredSalesByDate = selectedCourse === "All Courses"
-    ? dashboardData.salesByDate
-    : dashboardData.salesByDate.filter((item) => item.course === selectedCourse);
+  const filteredSalesByDate =
+    selectedCourse === "All Courses"
+      ? dashboardData.salesByDate || [] // Default to an empty array if undefined
+      : (dashboardData.salesByDate || []).filter((item) => item.course === selectedCourse);
 
   const uniqueDates = [...new Set(filteredSalesByDate.map((item) => item.date))];
 
   const salesByDateData = {
     labels: uniqueDates,
-    datasets: dashboardData.salesData
+    datasets: (dashboardData.salesData || []) // Default to an empty array if undefined
       .filter((course) => selectedCourse === "All Courses" || course.course === selectedCourse)
       .map((course) => {
         const courseSales = filteredSalesByDate.filter((item) => item.course === course.course);
@@ -123,8 +163,19 @@ const AdminDashboard = () => {
             <FaUsers size={24} />
           </div>
           <div>
-            <h2 className="text-xl font-semibold">Total Users</h2>
+            <h2 className="text-xl font-semibold">Total Admin</h2>
             <p className="text-gray-600">{dashboardData.totalUsers}</p>
+          </div>
+        </div>
+
+        {/* Total Non-Admin Users */}
+        <div className="bg-white rounded-lg shadow-md p-6 flex items-center gap-4">
+          <div className="bg-purple-500 text-white p-4 rounded-full">
+            <FaUsers size={24} />
+          </div>
+          <div>
+            <h2 className="text-xl font-semibold">Total Users</h2>
+            <p className="text-gray-600">{totalNonAdminUsers}</p>
           </div>
         </div>
 
@@ -160,9 +211,9 @@ const AdminDashboard = () => {
           className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
           <option value="All Courses">All Courses</option>
-          {dashboardData.salesData.map((course, idx) => (
-            <option key={idx} value={course.course}>
-              {course.course}
+          {courses.map((course, idx) => (
+            <option key={idx} value={course.title}>
+              {course.title}
             </option>
           ))}
         </select>
