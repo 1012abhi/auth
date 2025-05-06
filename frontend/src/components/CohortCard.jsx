@@ -1,7 +1,12 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 
-const CohortCard = ({ thumbnail, title, price, originalPrice, discount }) => {
+const CohortCard = ({ _id, thumbnail, title, price, originalPrice, discount }) => {
+  // const { id } = useParams(); // Get the course ID from the URL parameters
+  // console.log(`CohortCard ID: ${id}`); // Log the course ID for debugging
+  // console.log(`CohortCard ID: ${_id}`); // Log the course ID for debugging
+
+
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden w-full max-w-xs">
       <img src={thumbnail} alt={thumbnail} className="w-full h-36 object-cover" />
@@ -13,7 +18,7 @@ const CohortCard = ({ thumbnail, title, price, originalPrice, discount }) => {
           <span className="text-green-600 font-medium text-xs">{discount}% off</span>
         </div>
         <Link
-          to="/viewcourse"
+          to={`/viewcourse/${_id}`}
           className="bg-blue-500 hover:bg-blue-600 text-white w-full px-26 py-2 rounded-2xl text-sm cursor-pointer transition duration-300 ease-in-out"
         >
           View Details

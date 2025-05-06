@@ -21,6 +21,8 @@ import AdminCourseManagement from './Admin/AdminCourseManagement'
 import AdminPurchasedCourses from './Admin/AdminPurchasedCourses';
 import AdminDashboard from './Admin/AdminDashboard';
 import PurchaseUserPage from './Admin/PurchaseUserPage'
+import PaymentPage from './pages/PaymentPage'
+import RazorpayPaymentPage from './pages/RazorpayPaymentPage'
 
 function App() {
   return (
@@ -48,8 +50,8 @@ function App() {
             <EnrolledCoursesDashboard />
           </UserProtectedWrapper>
         } />
-        <Route path="/courseslist" element={<CourseList />} />
-        <Route path="/viewcourse" element={
+        {/* <Route path="/courseslist" element={<CourseList />} /> */}
+        <Route path="/viewcourse/:id" element={
           <UserProtectedWrapper>
             <ViewCourse />
           </UserProtectedWrapper>
@@ -59,7 +61,11 @@ function App() {
         <Route path="/verify-email" element={<VerifyEmailPrompt />} />
         <Route path="/verifyemail/:token" element={<VerifyEmail />} />
         <Route path="/oauthsuccess" element={<OAuthSuccess />} />
+        {/* <Route path='/payment' element={<PaymentPage />} /> */}
 
+        <Route path="/razorpay-payment" element={<RazorpayPaymentPage />} />
+        
+        
         {/* <Route path="/admin" element={<AdminPanel />} /> */}
         {/* <Route path="/userlist" element={<UsersList />} /> */}
         <Route path='/admin' element={<AdmintLayout />}>

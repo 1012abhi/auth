@@ -5,6 +5,7 @@ import connectDB from "./db/db.js";
 import cors from "cors";
 import session from "express-session";
 import passport from "../backend/config/passport.js"
+import cookieParser from "cookie-parser";
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -40,6 +41,7 @@ app.get("/", (req, res) => {
   res.send("Hello World! This is the backend server.");
 });
 
+
 // Initialize Passport
 app.use(passport.initialize());
 app.use(passport.session());
@@ -48,11 +50,12 @@ app.use(passport.session());
 import userRoutes from "./routes/user.routes.js";
 import adminRoutes from "./routes/admin.routes.js"
 import courseRoutes from "./routes/course.routes.js";
-import cookieParser from "cookie-parser";
+import paymentRoute from "./routes/payment.routes.js";
 
 app.use("/api/user", userRoutes);
 app.use("/api/admin", adminRoutes)
 app.use("/api/course", courseRoutes)
+app.use("/api/payment", paymentRoute)
 
 app.listen(PORT, () => {    
   console.log(`Server is running on http://localhost:${PORT}`);

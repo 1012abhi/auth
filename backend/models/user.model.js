@@ -47,7 +47,7 @@ const userSchema = new Schema({
         default: false
     },
     
-})
+}, { timestamps: true });
 
 userSchema.methods.generateAuthToken = function() {
     const token = jwt.sign({ _id: this._id}, process.env.JWT_SECRET, {expiresIn: '24h'} )
@@ -62,4 +62,4 @@ userSchema.statics.hashPassword = async function(password) {
     return await bcrypt.hash(password, 10);
 }
 
-export const userModel = mongoose.model('user', userSchema)
+export const userModel = mongoose.model('User', userSchema)
